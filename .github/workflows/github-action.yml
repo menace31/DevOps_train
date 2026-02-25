@@ -14,6 +14,11 @@ jobs:
       with: 
         python-version: '3.12'
     
+    - name: run test sécurité
+      run: |
+          pip install bandit
+          bandit -r app.py
+
     - name: build docker
       run: docker build -t ma-capsule .
 
@@ -29,4 +34,3 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/ma-capsule2:latest
-        
