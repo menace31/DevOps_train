@@ -33,4 +33,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ma-capsule2:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ma-capsule:latest
