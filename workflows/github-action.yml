@@ -20,7 +20,7 @@ jobs:
           bandit -r app.py
 
     - name: build docker
-      run: docker build -t ma-capsule .
+      run: docker build -t ma-capsule ./serveur
 
     - name: login to Docker Hub
       uses: docker/login-action@v3
@@ -31,6 +31,6 @@ jobs:
     - name: build and push docker image
       uses: docker/build-push-action@v5
       with:
-        context: .
+        context: ./serveur
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/ma-capsule:latest
