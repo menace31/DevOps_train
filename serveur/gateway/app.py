@@ -21,4 +21,4 @@ def get_messages():
     response = requests.get("http://storage:5001/messages",timeout=5)
     return response.text
 if __name__ == "__main__":
-    app.run(host = '0.0.0.0', port = "5000")
+    app.run(host = '127.0.0.1', port = "5000")
