@@ -13,12 +13,12 @@ def home():
 
 def post_message():
     user_data = request.get_json()
-    response = requests.post(SAVE_URL, json={"content": user_data['contenu']})
+    response = requests.post(SAVE_URL, json={"content": user_data['contenu']},timeout=5)
     return jsonify({"gateway_status": "Transmis", "storage_response": response.text})
 
 @app.route('/messages', methods = ['GET'])
 def get_messages():
-    response = requests.get("http://storage:5001/messages")
+    response = requests.get("http://storage:5001/messages",timeout=5)
     return response.text
 if __name__ == "__main__":
     app.run(host = '0.0.0.0', port = "5000")
