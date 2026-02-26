@@ -20,18 +20,22 @@ jobs:
           bandit -r ./serveur/gateway/app.py
           bandit -r ./serveur/storage/app.py
 
-    - name: build docker
-      run: docker compose up --build
-
     - name: login to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: build and push docker image
+    - name: build and push docker image gateway
       uses: docker/build-push-action@v5
       with:
-        context: ./serveur
+        context: ./serveur/gateway
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ma-capsule:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/gateway
+    
+    - name: build and push docker image storage
+      uses: docker/build-push-action@v5
+      with:
+        context: ./serveur/storage
+        push:true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/storage
