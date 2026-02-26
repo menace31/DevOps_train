@@ -37,5 +37,5 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./serveur/storage
-        push:true
+        push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/storage
