@@ -18,8 +18,8 @@ services:
       - 8.8.8.8
     depends_on:
       - db
-    
-  
+
+
   ollama-server:
     image: ollama/ollama:latest
     dns:

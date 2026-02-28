@@ -11,9 +11,9 @@ jobs:
 
     - name: install python
       uses: actions/setup-python@v4
-      with: 
+      with:
         python-version: '3.12'
-    
+
     - name: run test sécurité
       run: |
           pip install bandit
@@ -32,7 +32,7 @@ jobs:
         context: ./serveur/gateway
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/gateway
-    
+
     - name: build and push docker image storage
       uses: docker/build-push-action@v5
       with:
