@@ -1,9 +1,10 @@
-version: '3.8'
-
 services:
   # Service 1 : L'entrée
   gateway:
-    build: .mdevillet31/gateway
+    build: ./gateway
+    image: mdevillet31/gateway
+    dns:
+      - 8.8.8.8
     ports:
       - "8080:5000"
     depends_on:
@@ -11,10 +12,35 @@ services:
 
   # Service 2 : La logique de stockage
   storage:
-    build: .mdevillet31/storage
+    build: ./storage
+    image: mdevillet31/storage
+    dns:
+      - 8.8.8.8
     depends_on:
       - db
-  # Service 3 : La base de données
+    
+  
+  ollama-server:
+    image: ollama/ollama:latest
+    dns:
+      - 8.8.8.8
+    volumes:
+      - ollama_data:/root/.ollama
+
+
+  # Service 3 : Chatbot
+  chatbot:
+    build: ./chat_bot
+    dns:
+      - 8.8.8.8
+    ports:
+      - "5002:5002"
+    environment:
+      - OLLAMA_HOST=http://ollama-server:11434
+    volumes:
+      - ./chroma_db:/app/chroma_db
+
+  # Service 4 : La base de données
   db:
     image: postgres:15-alpine
     environment:
@@ -24,3 +50,6 @@ services:
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ollama_data:

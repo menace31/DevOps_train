@@ -28,5 +28,17 @@ def get_messages():
     conn.close()
     return row, 200
 
+@app.route('/exec', methods = ['POST'])
+def execute_SQL():
+    context = request.json.get('content')
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(context)
+    row = cur.fetchall()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status" : f"action efféctué {context} resultat: {row}"}), 201
+
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5001)
+    app.run(host='0.0.0.0', port=5001)

@@ -1,0 +1,8 @@
+flask
+psycopg2-binary
+ollama
+langchain
+langchain-community
+langchain-ollama
+langchain-text-splitters
+chromadb
