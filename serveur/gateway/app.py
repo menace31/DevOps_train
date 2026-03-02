@@ -21,12 +21,6 @@ def post_message():
     return jsonify({"gateway_status": "Transmis", "storage_response": response.text})
 
 
-@app.route("/update_data", methods=["GET"])
-def update_databas():
-    response = requests.get(f"{CHAT_URL}/feed", timeout=5)
-    return response.text
-
-
 @app.route("/exec", methods=["POST"])
 def execute_SQL():
     user_data = request.get_json()

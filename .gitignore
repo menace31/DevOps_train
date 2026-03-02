@@ -1,5 +1,3 @@
-# --- Bases de données (ChromaDB, etc.) ---
-# On ignore tout le dossier de données pour éviter les PermissionError
 serveur/chroma_db/
 .cache/pre-commit/
 serveur/postgres_data/

@@ -1,7 +1,18 @@
 import psycopg2
 from flask import Flask, jsonify, request
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_qdrant import QdrantVectorStore
+from langchain_ollama import OllamaEmbeddings
 
 app = Flask(__name__)
+QDRANT_URL = "http://qdrant-server:6333"
+COLLECTION_NAME = "ma_capsule_perso"
+
+embeddings = OllamaEmbeddings(
+    model="nomic-embed-text",
+    base_url="http://ollama-server:11434",
+)
 
 
 def get_db_connection():
@@ -17,6 +28,21 @@ def save():
     cur = conn.cursor()
     cur.execute("INSERT INTO messages (content) VALUES (%s)", (content,))
     conn.commit()
+
+    docs = [Document(content)]
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000, chunk_overlap=100, separators=["\n\n", "\n", ".", " "]
+    )
+
+    chunks = splitter.split_documents(docs)
+
+    QdrantVectorStore.from_documents(
+        chunks,
+        embeddings,
+        url=QDRANT_URL,
+        collection_name=COLLECTION_NAME,
+    )
+
     cur.close()
     conn.close()
     return jsonify({"status": "Sauvegardé"}), 201

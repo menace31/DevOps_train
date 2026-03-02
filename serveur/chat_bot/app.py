@@ -1,54 +1,21 @@
 import psycopg2
-from ollama import Client
 from flask import Flask, jsonify, request
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+
+# avant from langchain_community.vectorstores import Chroma
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
 from langchain_ollama import OllamaEmbeddings
+import litellm
 
 
 app = Flask(__name__)
-client = Client(host="http://ollama-server:11434")
-CHROMA_DIR = "./chroma_db"
+QDRANT_URL = "http://qdrant-server:6333"
+COLLECTION_NAME = "ma_capsule_perso"
 
 embeddings = OllamaEmbeddings(
-    model="nomic-embed-text",  # Un modèle léger spécialisé dans les vecteurs
+    model="nomic-embed-text",
     base_url="http://ollama-server:11434",
 )
-
-
-@app.route("/feed")
-def RAG_processus():
-
-    conn = psycopg2.connect(
-        host="db", database="capsule_db", user="user", password="password123"
-    )
-
-    cur = conn.cursor()
-
-    cur.execute("SELECT content FROM messages;")
-
-    rows = cur.fetchall()
-
-    docs = [Document(page_content=row[0]) for row in rows]
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=100, separators=["\n\n", "\n", ".", " "]
-    )
-
-    chunks = splitter.split_documents(docs)
-
-    Chroma.from_documents(chunks, embeddings, persist_directory="./chroma_db")
-
-    conn.close()
-    cur.close()
-
-    return jsonify(
-        {
-            "status": "Succès",
-            "chunks_created": len(chunks),
-            "message": "Indexation terminée avec succès.",
-        }
-    )
 
 
 @app.route("/chat", methods=["POST"])
@@ -59,28 +26,34 @@ def ask_microservice():
     if not query:
         return jsonify({"error": "Aucune question fournie"}), 400
     try:
-        vector = Chroma(persist_directory=CHROMA_DIR, embedding_function=embeddings)
+
+        client = QdrantClient(url=QDRANT_URL)
+        vector = QdrantVectorStore(
+            client=client, collection_name=COLLECTION_NAME, embedding=embeddings
+        )
 
         docs = vector.similarity_search(query, k=3)
 
         context = "\n---\n".join([d.page_content for d in docs])
 
         system_prompt = f"""{prompt}
-        CONTEXTE :
+        CONTEXTE:
         {context}
         """
-        print(f"DEBUG PROMPT ENVOYÉ : {system_prompt}")
-        response = client.chat(
-            model="qwen2.5:1.5b",
+
+        response = litellm.completion(
+            model="ollama/qwen2.5:1.5b",
+            api_base="http://ollama-server:11434",
+            temperature=0.1,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": query},
             ],
         )
-        return response["message"]["content"]
+        return response.choices[0].message.content
     except Exception as e:
         return f"Erreur de communication : {e}"
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5002")
+    app.run(host="0.0.0.0", port=5002)

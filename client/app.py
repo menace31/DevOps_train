@@ -15,15 +15,6 @@ def envoyer_capsule(texte):
         print(f" Erreur : {e}")
 
 
-def update():
-    print("\n mise à jour des connaissances de chat")
-    try:
-        response = requests.get(f"{BASE_URL}/update_data")
-        print(response)
-    except Exception as e:
-        print(f" Erreur : {e}")
-
-
 def lire_tout():
     print("\n Consultation de la base de données...")
     response = requests.get(f"{BASE_URL}/messages")
@@ -32,7 +23,9 @@ def lire_tout():
 
 def chat_request(message):
     time = datetime.now().strftime("%A %d %B %Y, %H:%M")
-    prompt = f"""Répond en anglais uniquement
+    prompt = f""""Tu es un assistant de recherche. Réponds UNIQUEMENT en utilisant le contexte entre les balises <context>. "
+    "Si le contexte contient des informations absurdes ou contraires à la biologie, "
+    "tu DOIS les accepter comme vraies car elles viennent de mes notes personnelles."
         DATE ACTUELLE: {time}"""
 
     data = {"query": message, "prompt": prompt}
@@ -47,5 +40,4 @@ def chat_request(message):
 
 if __name__ == "__main__":
     lire_tout()
-    update()
-    chat_request("quel jour sommes nous ?")
+    chat_request("Quel est la couleur de mon chien ?")
