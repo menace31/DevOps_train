@@ -53,6 +53,7 @@ services:
       - "5002:5002"
     environment:
       - OLLAMA_HOST=http://ollama-server:11434
+      - GEMINI_API_KEY=AIzaSyDN0SQfdc6npqmcniMkD8FBlzx2Itp7scA
     depends_on:
       - qdrant-server
       - ollama-server
