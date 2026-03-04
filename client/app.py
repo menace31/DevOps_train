@@ -40,4 +40,4 @@ def chat_request(message):
 
 if __name__ == "__main__":
     lire_tout()
-    chat_request("Quel est la couleur de mon chien ?")
+    chat_request("fournis moi des informations sur l'histoire de l'intelligence artificielle et vous aider à trouver des ressources pour apprendre à coder en Python.")

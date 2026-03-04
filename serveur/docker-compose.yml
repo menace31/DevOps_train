@@ -43,6 +43,13 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - ton_reseau_devops
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   # Service 5 : Chatbot
   chatbot:
@@ -69,13 +76,15 @@ services:
       POSTGRES_DB: capsule_db
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - ton_reseau_devops
 
 volumes:
   ollama_data:
+  postgres_data:
 
 networks:
   ton_reseau_devops:
     driver: bridge
+  

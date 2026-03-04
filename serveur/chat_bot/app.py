@@ -42,7 +42,7 @@ def ask_microservice():
         """
 
         response = litellm.completion(
-            model="ollama/qwen2.5:1.5b",
+            model="ollama/mistral-nemo:12b",
             api_base="http://ollama-server:11434",
             temperature=0.1,
             messages=[
