@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from langchain_community.document_loaders import PyPDFLoader
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = "https://ia-portfolio.userboy.com"
 
 answer_prompt = """Act as a technical document analyst. Your goal is to give a clear and concise answer to the recruiter by providing relevant information and put forward the Maxime profile."""
 
