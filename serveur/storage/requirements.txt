@@ -1,9 +1,10 @@
 flask
 psycopg2-binary
+docling
+docling-core
 langchain-core
-langchain-text-splitters
 langchain-qdrant
-qdrant-client
 langchain-ollama
 litellm
-nest_asyncio
+pydantic
+python-dotenv

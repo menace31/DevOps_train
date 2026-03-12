@@ -6,3 +6,4 @@ langchain-ollama
 langchain-qdrant
 qdrant-client
 litellm
+sentence-transformers

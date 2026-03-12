@@ -56,11 +56,19 @@ services:
       - 8.8.8.8
     environment:
       - OLLAMA_HOST=http://ollama-server:11434
+      - PYTHONUNBUFFERED=1
     depends_on:
       - qdrant-server
       - ollama-server
     networks:
       - ton_reseau_devops
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
 volumes:
   ollama_data:

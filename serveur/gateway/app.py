@@ -1,7 +1,12 @@
-from flask import Flask, jsonify, request
+import sys
+
+from flask import Flask, jsonify, request, Response
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024
+CORS(app)
 
 SAVE_URL = "http://storage:5001"
 CHAT_URL = "http://chatbot:5002"
@@ -18,16 +23,24 @@ def post_message():
     {
         "contenu": "The text content to be processed and saved.",
         "nom_fichier": "optional_name_for_source",
-        "query": "Instructions for processing the chunk of text.",
-        "query2": "Instructions for summarizing the processed chunk."
     }
     The endpoint will forward the content and associated metadata to the storage service, which will handle the processing and saving of the data.
     """
+    print(f"DEBUG: Taille du JSON reçu en RAM: {sys.getsizeof(request.data) / 1024 / 1024:.2f} MB")
     user_data = request.get_json()
-    response = requests.post(
-        f"{SAVE_URL}/save", json={"content": user_data["contenu"], "nom_fichier": user_data["nom_fichier"], "query": user_data["query"], "query2": user_data["query2"]}, timeout=1000
-    )
-    return jsonify({"gateway_status": "Transmis", "storage_response": response.text})
+    try:
+        response = requests.post(
+            f"{SAVE_URL}/save", json={"content": user_data["contenu"], "nom_fichier": user_data["nom_fichier"]}, timeout=6000
+        )
+        print(f"Storage response status: {response.status_code}")
+        print(f"Storage response: {response.text}")
+        response.raise_for_status()
+        return jsonify({"gateway_status": "Transmis", "storage_response": response.text})
+    except Exception as e:
+        print(f"Gateway error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"gateway_status": "Erreur", "error": str(e)}), 500
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -40,11 +53,21 @@ def chat():
     The endpoint will forward the query and prompt to the chatbot service, which will process the input and return a response. The gateway will then return the chatbot's response to the user.
     """
     user_data = request.get_json()
-    response = requests.post(
-        f"{CHAT_URL}/chat", json={"query": user_data["query"], "prompt": user_data["prompt"]}, timeout=60
-    )
-    return response.text
-
+    def generate_response():
+        try:
+            with requests.post(
+                f"{CHAT_URL}/chat",
+                json={"query": user_data.get("query", ""), "prompt": user_data.get("prompt", "")},
+                timeout=420,
+                stream=True
+            ) as r:
+                r.raise_for_status()
+                for chunk in r.iter_content(chunk_size=None, decode_unicode=True):
+                                if chunk:
+                                    yield chunk
+        except Exception as e:
+            yield f"Erreur Gateway: {str(e)}"
+    return Response(generate_response(), mimetype='text/plain')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
