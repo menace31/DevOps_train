@@ -32,5 +32,5 @@ def chat_request(message):
 if __name__ == "__main__":
 
     timer2 = time.time()
-    chat_request("""What strategy does Maxime suggest for achieving high-resolution results without directly training a model on high-resolution masks?""")
+    chat_request("""When did Maxime work at KAP TECH who is a student kot that promoted the technology accessibility to student ?""")
     print(f"\n\nChat request done in {time.time() - timer2:.2f} seconds")

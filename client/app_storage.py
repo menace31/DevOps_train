@@ -39,27 +39,28 @@ def envoyer_capsule(nom_fichier):
     """
     timer = time.time()
     print(f"Starting to process {nom_fichier}")
-# 1. On définit les options du pipeline (le "comment" on traite)
+
     pipeline_options = PdfPipelineOptions()
     pipeline_options.do_ocr = False
     pipeline_options.do_table_structure = False
     
-    # 2. On encapsule cela dans un PdfFormatOption (ce que Docling attend vraiment)
     format_options = {
         InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)
     }
     
-    # 3. On initialise avec le dictionnaire d'options
     converter = DocumentConverter(format_options=format_options)
     print(f"DocumentConverter initialized in {time.time() - timer:.2f} seconds")
+
     timer = time.time()
     result = converter.convert(f"documents/{nom_fichier}")
     chunker = HierarchicalChunker(max_chars=2500)
     chunks = list(chunker.chunk(result.document))
     print(f"Document converted and chunked in {time.time() - timer:.2f} seconds")
+
     timer = time.time()
     final_chunks = merge_consecutive_chunks(chunks)
     print(f"Chunks created in {time.time() - timer:.2f} seconds")
+
     for chunk in final_chunks:
         print(f"Print text: {chunk['text'][:100]}...")
         timer = time.time()
@@ -74,29 +75,15 @@ def envoyer_capsule(nom_fichier):
             traceback.print_exc()
         print(f"Chunk sent in {time.time() - timer:.2f} seconds")
 
-def chat_request(message):
-    time = datetime.now().strftime("%A %d %B %Y, %H:%M")
-    prompt = f"""
-    CURRENT DATE: {time}
-    CONTEXT: You are the career advocate and AI representative for Maxime Devillet. Answer only based on the information you have about Maxime.but answer like a natural human would do with politeness. "
-    """
-
-    data = {"query": f"[The recruiter question]: {message}", "prompt": prompt}
-    try:
-        response = requests.post(f"{BASE_URL}/chat", json=data, stream=True)
-        response.raise_for_status()
-        for chunk in response.iter_content(decode_unicode=True):
-            if chunk:
-                print(chunk, end="", flush=True)
-
-    except Exception as e:
-        print(f"\n Erreur: {e}")
-
 if __name__ == "__main__":
 
-    # envoyer_capsule("Maxime.pdf")
-    # envoyer_capsule("Image_processing.pdf")
-    # envoyer_capsule("Mémoire_Carbon_calculator.pdf")
+    envoyer_capsule("CGAN.pdf")
+    envoyer_capsule("Game_Jab_2023.pdf")
+    envoyer_capsule("Cloud_computing.pdf")
+    envoyer_capsule("Odoo_hackathon.pdf")
+    envoyer_capsule("Opensourceproject.pdf")
+    envoyer_capsule("Skijo_AI.pdf")
+    envoyer_capsule("Vocabulary_generator.pdf")
     # timer2 = time.time()
     # chat_request("""When did Maxime start working at Oh Green ?""")
     # print(f"Chat request done in {time.time() - timer2:.2f} seconds")
